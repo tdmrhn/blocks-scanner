@@ -5,7 +5,7 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.2
+Version: 0.3
 */
 
 add_action('admin_enqueue_scripts', function () {
@@ -52,7 +52,7 @@ function generate_blocks_table($blocks, $is_core) {
     
     foreach ($blocks as $block => $count) {
         if (!empty($block) && (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0))) {
-            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. $count . ' ' . _n('block', 'blocks', $count, 'blocks-scanner') . ')</option>';
+            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. $count . ' ' . _n('post', 'posts', $count, 'blocks-scanner') . ')</option>';
         }
     }
     
@@ -90,7 +90,7 @@ function generate_blocks_table($blocks, $is_core) {
                     echo '</div>';
                     echo '</td>';
                     echo '<td>' . $block . '</td>';
-                    echo '<td>' . $block_count . ' ' . ($block_count > 1 ? 'blocks' : 'block') . '</td>';
+                    echo '<td>' . $block_count . ' ' . _n('block', 'blocks', $block_count, 'blocks-scanner') . '</td>';
                     
                     echo '<td>' . $post_type . '</td>';
                     echo '</tr>';
