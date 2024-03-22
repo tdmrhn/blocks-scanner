@@ -5,7 +5,7 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.1
+Version: 0.2
 */
 
 add_action('admin_enqueue_scripts', function () {
@@ -20,8 +20,7 @@ add_action('admin_menu', function () {
         'manage_options',
         'blocks_scanner',
         'blocks_scanner_contents',
-        'dashicons-schedule',
-        1
+        5
     );
 });
 
@@ -53,13 +52,13 @@ function generate_blocks_table($blocks, $is_core) {
     
     foreach ($blocks as $block => $count) {
         if (!empty($block) && (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0))) {
-            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. $count .')</option>';
+            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. $count . ' ' . _n('block', 'blocks', $count, 'blocks-scanner') . ')</option>';
         }
     }
     
     echo '</select>';
     echo '<div>';
-    echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</span>';
+    echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('posts', 'blocks-scanner') . '</span>';
     echo '<input type="text" id="dhn-filter' . '-' . $table_id . '" class="dhn-filter" placeholder="' . esc_html__('Search Blocks', 'blocks-scanner') . '">';
     echo '</div>';
     echo '</div>';
@@ -119,6 +118,7 @@ function count_block_occurrences($blocks, $content, $block_name) {
 
 function get_blocks_in_use() {
     $blocks = [];
+    $processed_posts = [];
     $post_types = get_post_types(array('public' => true), 'objects');
     $post_type_slugs = array_keys($post_types);
     $args = array(
@@ -127,29 +127,33 @@ function get_blocks_in_use() {
     );
     $posts = get_posts($args);
     foreach ($posts as $post) {
-        $content_blocks = parse_blocks($post->post_content);
-        foreach ($content_blocks as $content_block) {
-            count_block_usage($content_block, $blocks);
+        if (!in_array($post->ID, $processed_posts)) {
+            $content_blocks = parse_blocks($post->post_content);
+            $unique_blocks = [];
+            count_block_usage($content_blocks, $blocks, $unique_blocks);
+            $processed_posts[] = $post->ID;
         }
     }
     return $blocks;
 }
 
-function count_block_usage($block, &$blocks) {
-    $block_name = $block['blockName'];
-    if (!empty($block_name)) {
-        if (!isset($blocks[$block_name])) {
-            $blocks[$block_name] = 1;
-        } else {
-            $blocks[$block_name]++;
+function count_block_usage($blocks, &$block_counts, &$unique_blocks) {
+    foreach ($blocks as $block) {
+        $block_name = $block['blockName'];
+        if (!empty($block_name) && !in_array($block_name, $unique_blocks)) {
+            if (!isset($block_counts[$block_name])) {
+                $block_counts[$block_name] = 1;
+            } else {
+                $block_counts[$block_name]++;
+            }
+            $unique_blocks[] = $block_name; 
         }
-    }
-    if (!empty($block['innerBlocks'])) {
-        foreach ($block['innerBlocks'] as $inner_block) {
-            count_block_usage($inner_block, $blocks);
+        if (!empty($block['innerBlocks'])) {
+            count_block_usage($block['innerBlocks'], $block_counts, $unique_blocks);
         }
     }
 }
+
 
 function get_posts_related_to_block($block) {
     $post_types = get_post_types(array('public' => true), 'objects');
