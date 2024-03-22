@@ -1,0 +1,17 @@
+.tablenav {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.tab-content.active {
+  display: block;
+}
+.tab-content,
+.wp-list-table tr.hide:not(.main) {
+  display: none;
+}
+.dhn-filter input {
+  max-width: 400px;
+}
