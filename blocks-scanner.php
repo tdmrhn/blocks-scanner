@@ -5,16 +5,18 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.3
+Version: 0.4
 */
 
 add_action('admin_enqueue_scripts', function () {
-    wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), null, true);
-    wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css');
+    $plugin_version = get_plugin_data( __FILE__ )['Version'];
+    wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
+    wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
 });
 
+
 add_action('admin_menu', function () {
-    add_management_page(
+    $hook = add_management_page(
         'Blocks Scanner',
         'Blocks Scanner',
         'manage_options',
@@ -58,18 +60,19 @@ function generate_blocks_table($blocks, $is_core) {
     
     echo '</select>';
     echo '<div>';
-    echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('posts', 'blocks-scanner') . '</span>';
+    echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</span>';
     echo '<input type="text" id="dhn-filter' . '-' . $table_id . '" class="dhn-filter" placeholder="' . esc_html__('Search Blocks', 'blocks-scanner') . '">';
     echo '</div>';
     echo '</div>';
 
-    echo '<table id="dhn-list' . '-' . $table_id . '" class="wp-list-table widefat fixed striped">';
+    echo '<table id="dhn-list' . '-' . $table_id . '" class="wp-list-table widefat striped">';
     echo '<thead>';
     echo '<tr>';
-    echo '<th>' . esc_html__('Post/Page Title', 'blocks-scanner') . '</th>';
-    echo '<th>' . esc_html__('Block Name', 'blocks-scanner') . '</th>';
-    echo '<th>' . esc_html__('Block Usage', 'blocks-scanner') . '</th>';
-    echo '<th>' . esc_html__('Post Type', 'blocks-scanner') . '</th>';
+    echo '<th id="post_page_title" data-type="string">' . esc_html__('Post/Page Title', 'blocks-scanner') . '</th>';
+    echo '<th id="block_name" data-type="string">' . esc_html__('Block Name', 'blocks-scanner') . '</th>';
+    echo '<th id="block_usage" data-type="string">' . esc_html__('Block Usage', 'blocks-scanner') . '</th>';
+    echo '<th id="post_type" data-type="string">' . esc_html__('Post Type', 'blocks-scanner') . '</th>';
+    echo '<th id="publish_date" data-type="date">' . esc_html__('Updated Date', 'blocks-scanner') . '</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -93,6 +96,7 @@ function generate_blocks_table($blocks, $is_core) {
                     echo '<td>' . $block_count . ' ' . _n('block', 'blocks', $block_count, 'blocks-scanner') . '</td>';
                     
                     echo '<td>' . $post_type . '</td>';
+                    echo '<td>' . get_the_modified_date('', $post->ID) . '</td>';
                     echo '</tr>';
                 }
             }
