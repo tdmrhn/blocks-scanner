@@ -26,5 +26,5 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
-Current version: 0.3
+Current version: 0.4
 
