@@ -1,21 +1,21 @@
-.tablenav {
+.blocks_scanner .tablenav {
   display: flex;
   width: 100%;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
-.tab-content.active {
+.blocks_scanner .tab-content.active {
   display: block;
 }
-.tab-content,
-.wp-list-table tr.hide:not(.main) {
+.blocks_scanner .tab-content,
+.blocks_scanner .wp-list-table tr.hide:not(.main) {
   display: none;
 }
-.dhn-filter input {
+.blocks_scanner .dhn-filter input {
   max-width: 400px;
 }
-.wp-list-table th {
+.blocks_scanner th {
   cursor: pointer;
 }
 .blocks_scanner th::after {
