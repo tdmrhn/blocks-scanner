@@ -29,7 +29,7 @@ add_action('admin_menu', function () {
 function blocks_scanner_contents() {
     $blocks = get_blocks_in_use();
     
-    echo '<div class="wrap">';
+    echo '<div class="wrap blocks_scanner">';
     echo '<h1>' . esc_html__('Blocks Scanner', 'blocks-scanner') . '</h1>';
     echo '<nav class="nav-tab-wrapper">';
     echo '<a href="#other-blocks" class="nav-tab">' . esc_html__('Block Plugins', 'blocks-scanner') . '</a>';
