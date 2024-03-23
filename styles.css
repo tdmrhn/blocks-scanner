@@ -18,10 +18,10 @@
 .wp-list-table th {
   cursor: pointer;
 }
-.wp-list-table th::after {
+.blocks_scanner th::after {
   content: " ▲";
   color: #c3c4c7;
 }
-.wp-list-table th[data-sort-order="desc"]::after {
+.blocks_scanner th[data-sort-order="desc"]::after {
   content: " ▼";
 }
