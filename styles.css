@@ -15,3 +15,13 @@
 .dhn-filter input {
   max-width: 400px;
 }
+.wp-list-table th {
+  cursor: pointer;
+}
+.wp-list-table th::after {
+  content: " ▲";
+  color: #c3c4c7;
+}
+.wp-list-table th[data-sort-order="desc"]::after {
+  content: " ▼";
+}
