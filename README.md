@@ -26,5 +26,20 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
-Current version: 0.4
+= 0.4.1 =
+* Check exact drop down value
+
+= 0.4 =
+* Added wrapper class to main div
+* Added table sorting feature
+
+= 0.3 =
+* Corrected translatable post and block strings
+
+= 0.2 =
+* Count only posts in dropdown
+* Count all inner/nested blocks posts in table
+
+= 0.1 =
+* First release
 
