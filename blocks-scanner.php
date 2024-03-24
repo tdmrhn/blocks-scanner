@@ -5,7 +5,7 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.4
+Version: 0.5
 */
 
 add_action('admin_enqueue_scripts', function () {
