@@ -54,18 +54,18 @@ function generate_blocks_table($blocks, $is_core) {
     
     foreach ($blocks as $block => $count) {
         if (!empty($block) && (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0))) {
-            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. $count . ' ' . _n('post', 'posts', $count, 'blocks-scanner') . ')</option>';
+            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. esc_html($count) . ' ' . esc_html(_n('post', 'posts', $count, 'blocks-scanner')) . ')</option>';
         }
     }
     
     echo '</select>';
     echo '<div>';
     echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</span>';
-    echo '<input type="text" id="dhn-filter' . '-' . $table_id . '" class="dhn-filter" placeholder="' . esc_html__('Search Blocks', 'blocks-scanner') . '">';
+    echo '<input type="text" id="dhn-filter' . '-' . esc_html($table_id) . '" class="dhn-filter" placeholder="' . esc_html__('Search Blocks', 'blocks-scanner') . '">';
     echo '</div>';
     echo '</div>';
 
-    echo '<table id="dhn-list' . '-' . $table_id . '" class="wp-list-table widefat striped">';
+    echo '<table id="dhn-list' . '-' . esc_html($table_id) . '" class="wp-list-table widefat striped">';
     echo '<thead>';
     echo '<tr>';
     echo '<th id="post_page_title" data-type="string">' . esc_html__('Post/Page Title', 'blocks-scanner') . '</th>';
@@ -86,17 +86,17 @@ function generate_blocks_table($blocks, $is_core) {
                     $block_count = count_block_occurrences(parse_blocks($post->post_content), $post->post_content, $block);
                     echo '<tr>';
                     echo '<td class="has-row-actions">';
-                    echo '<strong><a href="' . get_edit_post_link($post->ID) . '">' . $post->post_title . '</a></strong>';
+                    echo '<strong><a href="' . esc_url(get_edit_post_link($post->ID)) . '">' . esc_html($post->post_title) . '</a></strong>';
                     echo '<div class="row-actions">';
-                    echo '<span class="edit"><a href="' . get_edit_post_link($post->ID) . '">' . esc_html__('Edit', 'blocks-scanner') . '</a> | </span>';
-                    echo '<span class="view"><a href="' . get_permalink($post->ID) . '">' . esc_html__('View', 'blocks-scanner') . '</a></span>';
+                    echo '<span class="edit"><a href="' . esc_url(get_edit_post_link($post->ID)) . '">' . esc_html__('Edit', 'blocks-scanner') . '</a> | </span>';
+                    echo '<span class="view"><a href="' . esc_url(get_permalink($post->ID)) . '">' . esc_html__('View', 'blocks-scanner') . '</a></span>';
                     echo '</div>';
                     echo '</td>';
-                    echo '<td>' . $block . '</td>';
-                    echo '<td>' . $block_count . ' ' . _n('block', 'blocks', $block_count, 'blocks-scanner') . '</td>';
+                    echo '<td>' . esc_html($block) . '</td>';
+                    echo '<td>' . esc_html($block_count) . ' ' . esc_html(_n('block', 'blocks', $block_count, 'blocks-scanner')) . '</td>';
                     
-                    echo '<td>' . $post_type . '</td>';
-                    echo '<td>' . get_the_modified_date('', $post->ID) . '</td>';
+                    echo '<td>' . esc_html($post_type) . '</td>';
+                    echo '<td>' . esc_html(get_the_modified_date('', $post->ID)) . '</td>';
                     echo '</tr>';
                 }
             }
