@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 tableRows.forEach(row => {
                     const blockName = row.cells[1].textContent.trim().toLowerCase();
-                    const shouldDisplay = (selectedBlock === "all" || blockName.includes(selectedBlock)) && row.textContent.toLowerCase().includes(filterText);
+                    const shouldDisplay = (selectedBlock === "all" || blockName === selectedBlock) && row.textContent.toLowerCase().includes(filterText);
                     row.style.display = shouldDisplay ? "" : "none";
                     if (shouldDisplay) visibleRowCount++;
                 });
