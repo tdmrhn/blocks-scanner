@@ -5,7 +5,7 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.5
+Version: 0.6
 */
 
 add_action('admin_enqueue_scripts', function () {
@@ -27,7 +27,9 @@ add_action('admin_menu', function () {
 });
 
 function blocks_scanner_contents() {
-    $blocks = get_blocks_in_use();
+    $data = scan_all_blocks_in_posts();
+    $blocks = $data['blocks'];
+    $related_posts = $data['related_posts'];
     
     echo '<div class="wrap blocks_scanner">';
     echo '<h1>' . esc_html__('Blocks Scanner', 'blocks-scanner') . '</h1>';
@@ -36,35 +38,38 @@ function blocks_scanner_contents() {
     echo '<a href="#core-blocks" class="nav-tab">' . esc_html__('Core Blocks', 'blocks-scanner') . '</a>';
     echo '</nav>';
     echo '<div id="other-blocks" class="tab-content">';
-    generate_blocks_table($blocks, false);
+    generate_blocks_table($blocks, $related_posts, false);
     echo '</div>';
     echo '<div id="core-blocks" class="tab-content">';
-    generate_blocks_table($blocks, true);
+    generate_blocks_table($blocks, $related_posts, true);
+    echo '</div>';
     echo '</div>';
 }
 
-function generate_blocks_table($blocks, $is_core) {
+function generate_blocks_table($blocks, $related_posts, $is_core) {
     $table_id = $is_core ? 1 : 2;
-    
-    echo '<div class="tablenav">';
-    echo '<select id="block-dropdown">';
-    echo '<option value="all">' . esc_html__('All Blocks', 'blocks-scanner') . '</option>';
-    
-    $total_block_count = 0;
-    
-    foreach ($blocks as $block => $count) {
-        if (!empty($block) && (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0))) {
-            echo '<option value="' . esc_attr($block) . '">' . esc_html($block) . ' ('. esc_html($count) . ' ' . esc_html(_n('post', 'posts', $count, 'blocks-scanner')) . ')</option>';
-        }
-    }
-    
-    echo '</select>';
-    echo '<div>';
-    echo '<span class="displaying-num"><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</span>';
-    echo '<input type="text" id="dhn-filter' . '-' . esc_html($table_id) . '" class="dhn-filter" placeholder="' . esc_html__('Search Blocks', 'blocks-scanner') . '">';
-    echo '</div>';
-    echo '</div>';
 
+    echo '<div class="content-wrap">';
+    echo '<div class="content-nav">';
+        echo '<div class="block-filter_head">';
+	echo '<span>' . esc_html__('Block Name', 'blocks-scanner') . '</span>';
+	echo '<span>' . esc_html__('Posts', 'blocks-scanner') . '</span>';
+        echo '</div>';
+	foreach ($blocks as $block => $count) {
+    if (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0)) {
+        echo '<div class="block-filter">';
+        echo '<input type="checkbox" id="block-' . esc_attr($block) . '" class="block-checkbox" value="' . esc_attr($block) . '">';
+        echo '<label for="block-' . esc_attr($block) . '">' . esc_html($block) . ' <span>' . esc_html($count) . '</span></label>';
+        echo '</div>';
+    }
+}
+    echo '</div>';
+    echo '<div class="content-table">';
+    echo '<div class="content-table_top"><div><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</div>';
+    echo '<input type="text" id="dhn-filter' . '-' . esc_html($table_id) . '" class="dhn-filter" placeholder="' . esc_html__('Search Table', 'blocks-scanner') . '">';
+    echo '</div>';
+	
+    echo '<div class="content-table_wrap">';
     echo '<table id="dhn-list' . '-' . esc_html($table_id) . '" class="wp-list-table widefat striped">';
     echo '<thead>';
     echo '<tr>';
@@ -76,14 +81,14 @@ function generate_blocks_table($blocks, $is_core) {
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
-    
+
     foreach ($blocks as $block => $count) {
-        if (!empty($block) && (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0))) {
-            $posts = get_posts_related_to_block($block);
+        if (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0)) {
+            $posts = isset($related_posts[$block]) ? $related_posts[$block] : array();
             if (!empty($posts)) {
                 foreach ($posts as $post) {
                     $post_type = get_post_type($post);
-                    $block_count = count_block_occurrences(parse_blocks($post->post_content), $post->post_content, $block);
+                    $block_count = count_blocks_in_post(parse_blocks($post->post_content), $block);
                     echo '<tr>';
                     echo '<td class="has-row-actions">';
                     echo '<strong><a href="' . esc_url(get_edit_post_link($post->ID)) . '">' . esc_html($post->post_title) . '</a></strong>';
@@ -94,7 +99,6 @@ function generate_blocks_table($blocks, $is_core) {
                     echo '</td>';
                     echo '<td>' . esc_html($block) . '</td>';
                     echo '<td>' . esc_html($block_count) . ' ' . esc_html(_n('block', 'blocks', $block_count, 'blocks-scanner')) . '</td>';
-                    
                     echo '<td>' . esc_html($post_type) . '</td>';
                     echo '<td>' . esc_html(get_the_modified_date('', $post->ID)) . '</td>';
                     echo '</tr>';
@@ -102,27 +106,32 @@ function generate_blocks_table($blocks, $is_core) {
             }
         }
     }
-    
+
     echo '</tbody>';
     echo '</table>';
+    echo '</div>';
+    echo '</div>';
+    echo '</div>';
 }
 
-function count_block_occurrences($blocks, $content, $block_name) {
+function count_blocks_in_post($blocks, $block_name) {
     $block_count = 0;
     foreach ($blocks as $content_block) {
         if ($content_block['blockName'] === $block_name) {
             $block_count++;
         }
         if (!empty($content_block['innerBlocks'])) {
-            $block_count += count_block_occurrences($content_block['innerBlocks'], $content, $block_name);
+            $block_count += count_blocks_in_post($content_block['innerBlocks'], $block_name);
         }
     }
     return $block_count;
 }
 
-function get_blocks_in_use() {
+function scan_all_blocks_in_posts() {
     $blocks = [];
+    $related_posts = [];
     $processed_posts = [];
+
     $post_types = get_post_types(array('public' => true), 'objects');
     $post_type_slugs = array_keys($post_types);
     $args = array(
@@ -130,54 +139,39 @@ function get_blocks_in_use() {
         'posts_per_page' => -1,
     );
     $posts = get_posts($args);
+
+    $count_blocks = function ($blocks, &$block_counts, &$unique_blocks) use (&$count_blocks) {
+        foreach ($blocks as $block) {
+            $block_name = $block['blockName'];
+            if (!empty($block_name) && !in_array($block_name, $unique_blocks)) {
+                if (!isset($block_counts[$block_name])) {
+                    $block_counts[$block_name] = 1;
+                } else {
+                    $block_counts[$block_name]++;
+                }
+                $unique_blocks[] = $block_name;
+            }
+            if (!empty($block['innerBlocks'])) {
+                $count_blocks($block['innerBlocks'], $block_counts, $unique_blocks);
+            }
+        }
+    };
+
     foreach ($posts as $post) {
-        if (!in_array($post->ID, $processed_posts)) {
-            $content_blocks = parse_blocks($post->post_content);
-            $unique_blocks = [];
-            count_block_usage($content_blocks, $blocks, $unique_blocks);
-            $processed_posts[] = $post->ID;
-        }
-    }
-    return $blocks;
-}
-
-function count_block_usage($blocks, &$block_counts, &$unique_blocks) {
-    foreach ($blocks as $block) {
-        $block_name = $block['blockName'];
-        if (!empty($block_name) && !in_array($block_name, $unique_blocks)) {
-            if (!isset($block_counts[$block_name])) {
-                $block_counts[$block_name] = 1;
-            } else {
-                $block_counts[$block_name]++;
+        $content_blocks = parse_blocks($post->post_content);
+        $unique_blocks = [];
+        $count_blocks($content_blocks, $blocks, $unique_blocks);
+        
+        foreach ($unique_blocks as $block_name) {
+            if (!isset($related_posts[$block_name])) {
+                $related_posts[$block_name] = [];
             }
-            $unique_blocks[] = $block_name; 
+            $related_posts[$block_name][] = $post;
         }
-        if (!empty($block['innerBlocks'])) {
-            count_block_usage($block['innerBlocks'], $block_counts, $unique_blocks);
-        }
+        
+        $processed_posts[] = $post->ID;
     }
-}
 
-
-function get_posts_related_to_block($block) {
-    $post_types = get_post_types(array('public' => true), 'objects');
-    $post_type_slugs = array_keys($post_types);
-    $args = array(
-        'post_type'      => $post_type_slugs,
-        'posts_per_page' => -1,
-    );
-    $query = new WP_Query($args);
-    $related_posts = array();
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $content = get_the_content();
-            if (has_block($block, $content)) {
-                $related_posts[] = get_post();
-            }
-        }
-        wp_reset_postdata();
-    }
-    return $related_posts;
+    return array('blocks' => $blocks, 'related_posts' => $related_posts);
 }
 ?>
