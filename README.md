@@ -26,6 +26,11 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
+= 0.6 =
+* New: Reduced query to one, speed improved
+* New: Introduce multi-select checkboxex for blocks
+* New: UI/UX improvements with sticky sidebar and mobile responsive
+  
 = 0.5 =
 * Fixed output escaping function for some strings
 
