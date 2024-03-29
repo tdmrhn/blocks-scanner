@@ -5,15 +5,8 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.6
+Version: 0.7
 */
-
-add_action('admin_enqueue_scripts', function () {
-    $plugin_version = get_plugin_data( __FILE__ )['Version'];
-    wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
-    wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
-});
-
 
 add_action('admin_menu', function () {
     $hook = add_management_page(
@@ -24,6 +17,15 @@ add_action('admin_menu', function () {
         'blocks_scanner_contents',
         5
     );
+});
+
+add_action('admin_enqueue_scripts', function () {
+    global $pagenow;
+    if ($pagenow === 'tools.php' && isset($_GET['page']) && $_GET['page'] === 'blocks_scanner') {
+    $plugin_version = get_plugin_data( __FILE__ )['Version'];
+    wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
+    wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
+	}
 });
 
 function blocks_scanner_contents() {
@@ -55,14 +57,16 @@ function generate_blocks_table($blocks, $related_posts, $is_core) {
 	echo '<span>' . esc_html__('Block Name', 'blocks-scanner') . '</span>';
 	echo '<span>' . esc_html__('Posts', 'blocks-scanner') . '</span>';
         echo '</div>';
+        echo '<ul class="block-filter">';
 	foreach ($blocks as $block => $count) {
     if (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0)) {
-        echo '<div class="block-filter">';
+        echo '<li>';
         echo '<input type="checkbox" id="block-' . esc_attr($block) . '" class="block-checkbox" value="' . esc_attr($block) . '">';
         echo '<label for="block-' . esc_attr($block) . '">' . esc_html($block) . ' <span>' . esc_html($count) . '</span></label>';
-        echo '</div>';
+        echo '</li>';
     }
 }
+    echo '</ul>';
     echo '</div>';
     echo '<div class="content-table">';
     echo '<div class="content-table_top"><div><span class="row-count"></span> ' . esc_html__('rows', 'blocks-scanner') . '</div>';
