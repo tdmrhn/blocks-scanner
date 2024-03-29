@@ -26,6 +26,9 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
+= 0.7.2 =
+* Improvement: Added better nonce check
+* 
 = 0.7.1 =
 * Improvement: Added nonce check
 * 
