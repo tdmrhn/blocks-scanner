@@ -4,7 +4,7 @@ Donate link: https://dmrhn.com/
 Tags: gutenberg, blocks, editor, scan, find
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 0.7
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,9 @@ Yes, Blocks Scanner is compatible with multisite installations of WordPress. You
 
 
 == Changelog ==
+= 0.7.1 =
+* Improvement: Added nonce check
+
 = 0.7 =
 * Improvement: Run js and css only in blocks_scanner page 
 * Improvement: Used css grid instead of css flex for better responsive experience
