@@ -22,10 +22,14 @@ add_action('admin_menu', function () {
 add_action('admin_enqueue_scripts', function () {
     global $pagenow;
     if ($pagenow === 'tools.php' && isset($_GET['page']) && $_GET['page'] === 'blocks_scanner') {
-    $plugin_version = get_plugin_data( __FILE__ )['Version'];
-    wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
-    wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
-	}
+        if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'blocks_scanner_nonce')) {
+            $plugin_version = get_plugin_data( __FILE__ )['Version'];
+            wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
+            wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
+        } else {
+            wp_die('Nonce verification failed.');
+        }
+    }
 });
 
 function blocks_scanner_contents() {
