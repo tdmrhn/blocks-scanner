@@ -5,7 +5,7 @@ Plugin URI: https://github.com/tdmrhn/blocks-scanner
 Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
 Author: dmrhn
 Author URI: https://dmrhn.com
-Version: 0.7
+Version: 0.7.2
 */
 
 add_action('admin_menu', function () {
@@ -20,14 +20,17 @@ add_action('admin_menu', function () {
 });
 
 add_action('admin_enqueue_scripts', function () {
-    global $pagenow;
+    global $pagenow;    
     if ($pagenow === 'tools.php' && isset($_GET['page']) && $_GET['page'] === 'blocks_scanner') {
+        $nonce = wp_create_nonce('blocks_scanner_nonce');
+        $url = admin_url('tools.php?page=blocks_scanner&_wpnonce=' . $nonce);
         if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'blocks_scanner_nonce')) {
             $plugin_version = get_plugin_data( __FILE__ )['Version'];
             wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
             wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
         } else {
-            wp_die('Nonce verification failed.');
+            wp_redirect($url);
+            exit;
         }
     }
 });

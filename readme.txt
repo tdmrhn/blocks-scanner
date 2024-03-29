@@ -67,6 +67,9 @@ Yes, Blocks Scanner is compatible with multisite installations of WordPress. You
 
 
 == Changelog ==
+= 0.7.2 =
+* Improvement: Added better nonce check
+
 = 0.7.1 =
 * Improvement: Added nonce check
 
