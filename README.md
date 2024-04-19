@@ -26,12 +26,16 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
+= 0.8 =
+* Improvement: Improved unique slug nonce check
+* Improvement: Improved unique function names
+  
 = 0.7.2 =
 * Improvement: Added better nonce check
-* 
+  
 = 0.7.1 =
 * Improvement: Added nonce check
-* 
+  
 = 0.7 =
 * Improvement: Run js and css only in blocks_scanner page 
 * Improvement: Used css grid instead of css flex for better responsive experience
