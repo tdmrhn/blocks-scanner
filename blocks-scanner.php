@@ -1,12 +1,18 @@
 <?php
-/*
-Plugin Name: Blocks Scanner
-Plugin URI: https://github.com/tdmrhn/blocks-scanner
-Description: Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
-Author: dmrhn
-Author URI: https://dmrhn.com
-Version: 0.7.2
+/* 
+* Plugin Name:       Blocks Scanner
+* Plugin URI:        https://github.com/tdmrhn/blocks-scanner
+* Description:       Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
+* Version:           0.8
+* Requires at least: 5.2 
+* Requires PHP:      7.2 
+* Author:            dmrhn
+* Author URI:        https://dmrhn.com
+* License:           GPL v2 or later 
+* License URI:       https://www.gnu.org/licenses/gpl-2.0.html 
 */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action('admin_menu', function () {
     $hook = add_management_page(
@@ -23,11 +29,11 @@ add_action('admin_enqueue_scripts', function () {
     global $pagenow;    
     if ($pagenow === 'tools.php' && isset($_GET['page']) && $_GET['page'] === 'blocks_scanner') {
         $nonce = wp_create_nonce('blocks_scanner_nonce');
-        $url = admin_url('tools.php?page=blocks_scanner&_wpnonce=' . $nonce);
-        if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'blocks_scanner_nonce')) {
+        $url = admin_url('tools.php?page=blocks_scanner&blocks_scanner_wpnonce=' . $nonce);
+			if ( ! isset( $_POST['blocks_scanner_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['blocks_scanner_nonce'] ) ) , 'blocks_scanner_nonce' ) ) {
             $plugin_version = get_plugin_data( __FILE__ )['Version'];
-            wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'script.min.js', array(), $plugin_version, true);
-            wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'styles.min.css', array(), $plugin_version);
+            wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'assets/script.min.js', array(), $plugin_version, true);
+            wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'assets/styles.min.css', array(), $plugin_version);
         } else {
             wp_redirect($url);
             exit;
@@ -35,8 +41,9 @@ add_action('admin_enqueue_scripts', function () {
     }
 });
 
+
 function blocks_scanner_contents() {
-    $data = scan_all_blocks_in_posts();
+    $data = blocks_scanner_posts_blocks();
     $blocks = $data['blocks'];
     $related_posts = $data['related_posts'];
     
@@ -47,15 +54,15 @@ function blocks_scanner_contents() {
     echo '<a href="#core-blocks" class="nav-tab">' . esc_html__('Core Blocks', 'blocks-scanner') . '</a>';
     echo '</nav>';
     echo '<div id="other-blocks" class="tab-content">';
-    generate_blocks_table($blocks, $related_posts, false);
+    blocks_scanner_table($blocks, $related_posts, false);
     echo '</div>';
     echo '<div id="core-blocks" class="tab-content">';
-    generate_blocks_table($blocks, $related_posts, true);
+    blocks_scanner_table($blocks, $related_posts, true);
     echo '</div>';
     echo '</div>';
 }
 
-function generate_blocks_table($blocks, $related_posts, $is_core) {
+function blocks_scanner_table($blocks, $related_posts, $is_core) {
     $table_id = $is_core ? 1 : 2;
 
     echo '<div class="content-wrap">';
@@ -99,7 +106,7 @@ function generate_blocks_table($blocks, $related_posts, $is_core) {
             if (!empty($posts)) {
                 foreach ($posts as $post) {
                     $post_type = get_post_type($post);
-                    $block_count = count_blocks_in_post(parse_blocks($post->post_content), $block);
+                    $block_count = blocks_scanner_count_blocks(parse_blocks($post->post_content), $block);
                     echo '<tr>';
                     echo '<td class="has-row-actions">';
                     echo '<strong><a href="' . esc_url(get_edit_post_link($post->ID)) . '">' . esc_html($post->post_title) . '</a></strong>';
@@ -125,20 +132,20 @@ function generate_blocks_table($blocks, $related_posts, $is_core) {
     echo '</div>';
 }
 
-function count_blocks_in_post($blocks, $block_name) {
+function blocks_scanner_count_blocks($blocks, $block_name) {
     $block_count = 0;
     foreach ($blocks as $content_block) {
         if ($content_block['blockName'] === $block_name) {
             $block_count++;
         }
         if (!empty($content_block['innerBlocks'])) {
-            $block_count += count_blocks_in_post($content_block['innerBlocks'], $block_name);
+            $block_count += blocks_scanner_count_blocks($content_block['innerBlocks'], $block_name);
         }
     }
     return $block_count;
 }
 
-function scan_all_blocks_in_posts() {
+function blocks_scanner_posts_blocks() {
     $blocks = [];
     $related_posts = [];
     $processed_posts = [];
