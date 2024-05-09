@@ -3,7 +3,7 @@
 * Plugin Name:       Blocks Scanner
 * Plugin URI:        https://github.com/tdmrhn/blocks-scanner
 * Description:       Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
-* Version:           0.8
+* Version:           0.9
 * Requires at least: 5.2 
 * Requires PHP:      7.2 
 * Author:            dmrhn
@@ -32,15 +32,14 @@ add_action('admin_enqueue_scripts', function () {
         $url = admin_url('tools.php?page=blocks_scanner&blocks_scanner_wpnonce=' . $nonce);
 			if ( ! isset( $_POST['blocks_scanner_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['blocks_scanner_nonce'] ) ) , 'blocks_scanner_nonce' ) ) {
             $plugin_version = get_plugin_data( __FILE__ )['Version'];
-            wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'assets/script.min.js', array(), $plugin_version, true);
-            wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'assets/styles.min.css', array(), $plugin_version);
+            wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'build/script.min.js', array(), $plugin_version, true);
+            wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'build/styles.min.css', array(), $plugin_version);
         } else {
             wp_redirect($url);
             exit;
         }
     }
 });
-
 
 function blocks_scanner_contents() {
     $data = blocks_scanner_posts_blocks();
@@ -49,21 +48,32 @@ function blocks_scanner_contents() {
     
     echo '<div class="wrap blocks_scanner">';
     echo '<h1>' . esc_html__('Blocks Scanner', 'blocks-scanner') . '</h1>';
-    echo '<nav class="nav-tab-wrapper">';
-    echo '<a href="#other-blocks" class="nav-tab">' . esc_html__('Block Plugins', 'blocks-scanner') . '</a>';
-    echo '<a href="#core-blocks" class="nav-tab">' . esc_html__('Core Blocks', 'blocks-scanner') . '</a>';
+    echo '<nav class="nav-tab-wrapper">';    
+    $processed_categories = array();
+    
+    foreach ($blocks as $block => $count) {
+        $block_category = substr($block, 0, strpos($block, '/'));
+        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+        
+        if (!in_array($block_name, $processed_categories)) {
+            echo '<a href="#' . esc_attr($block_name) . '-blocks" class="nav-tab">' . esc_html(ucfirst($block_name)) . ' ' . esc_html__('Blocks', 'blocks-scanner') . '</a>';
+            $processed_categories[] = $block_name;
+        }
+    }
+    
     echo '</nav>';
-    echo '<div id="other-blocks" class="tab-content">';
-    blocks_scanner_table($blocks, $related_posts, false);
-    echo '</div>';
-    echo '<div id="core-blocks" class="tab-content">';
-    blocks_scanner_table($blocks, $related_posts, true);
-    echo '</div>';
+    
+    foreach ($processed_categories as $category) {
+        echo '<div id="' . esc_attr($category) . '-blocks" class="tab-content">';
+        blocks_scanner_table($blocks, $related_posts, $category);
+        echo '</div>';
+    }
+    
     echo '</div>';
 }
 
-function blocks_scanner_table($blocks, $related_posts, $is_core) {
-    $table_id = $is_core ? 1 : 2;
+function blocks_scanner_table($blocks, $related_posts, $category) {
+    $table_id = $category;
 
     echo '<div class="content-wrap">';
     echo '<div class="content-nav">';
@@ -73,13 +83,15 @@ function blocks_scanner_table($blocks, $related_posts, $is_core) {
         echo '</div>';
         echo '<ul class="block-filter">';
 	foreach ($blocks as $block => $count) {
-    if (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0)) {
-        echo '<li>';
-        echo '<input type="checkbox" id="block-' . esc_attr($block) . '" class="block-checkbox" value="' . esc_attr($block) . '">';
-        echo '<label for="block-' . esc_attr($block) . '">' . esc_html($block) . ' <span>' . esc_html($count) . '</span></label>';
-        echo '</li>';
+        $block_category = substr($block, 0, strpos($block, '/'));
+        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+        if ($block_name === $category) {
+            echo '<li>';
+            echo '<input type="checkbox" id="block-' . esc_attr($block) . '" class="block-checkbox" value="' . esc_attr($block) . '">';
+            echo '<label for="block-' . esc_attr($block) . '">' . esc_html($block) . ' <span>' . esc_html($count) . '</span></label>';
+            echo '</li>';
+        }
     }
-}
     echo '</ul>';
     echo '</div>';
     echo '<div class="content-table">';
@@ -101,7 +113,9 @@ function blocks_scanner_table($blocks, $related_posts, $is_core) {
     echo '<tbody>';
 
     foreach ($blocks as $block => $count) {
-        if (($is_core && strpos($block, 'core/') === 0) || (!$is_core && strpos($block, 'core/') !== 0)) {
+        $block_category = substr($block, 0, strpos($block, '/'));
+        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+        if ($block_name === $category) {
             $posts = isset($related_posts[$block]) ? $related_posts[$block] : array();
             if (!empty($posts)) {
                 foreach ($posts as $post) {
