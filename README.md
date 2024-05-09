@@ -25,6 +25,10 @@ For support, bug reports, or feature requests, please visit the [GitHub reposito
 
 ## Version
 
+= 0.9.1 =
+* Fix: If the first word of the blocks set is WP, add the second word
+* Fix: Separated variables
+  
 = 0.9 =
 * Improvement: Dynamically generate tabs and block lists based on Blocks set/plugin
   
