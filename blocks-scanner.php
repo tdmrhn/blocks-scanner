@@ -3,7 +3,7 @@
 * Plugin Name:       Blocks Scanner
 * Plugin URI:        https://github.com/tdmrhn/blocks-scanner
 * Description:       Easily scan and list the Gutenberg blocks used on your site. Quickly edit or view the posts that use the blocks.
-* Version:           0.9
+* Version:           0.9.1
 * Requires at least: 5.2 
 * Requires PHP:      7.2 
 * Author:            dmrhn
@@ -31,7 +31,8 @@ add_action('admin_enqueue_scripts', function () {
         $nonce = wp_create_nonce('blocks_scanner_nonce');
         $url = admin_url('tools.php?page=blocks_scanner&blocks_scanner_wpnonce=' . $nonce);
 			if ( ! isset( $_POST['blocks_scanner_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['blocks_scanner_nonce'] ) ) , 'blocks_scanner_nonce' ) ) {
-            $plugin_version = get_plugin_data( __FILE__ )['Version'];
+			$plugin_data = get_plugin_data( __FILE__ );
+			$plugin_version = $plugin_data['Version'];
             wp_enqueue_script('blocks-scanner-script', plugin_dir_url(__FILE__) . 'build/script.min.js', array(), $plugin_version, true);
             wp_enqueue_style('blocks-scanner-style', plugin_dir_url(__FILE__) . 'build/styles.min.css', array(), $plugin_version);
         } else {
@@ -53,10 +54,16 @@ function blocks_scanner_contents() {
     
     foreach ($blocks as $block => $count) {
         $block_category = substr($block, 0, strpos($block, '/'));
-        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+		$block_parts = explode('-', str_replace('_', '-', $block_category));
+		$block_name = reset($block_parts);
         
+    	if ($block_name === "wp") {
+			$block_name = $block_name . "-" . $block_parts[1];
+		}
         if (!in_array($block_name, $processed_categories)) {
-            echo '<a href="#' . esc_attr($block_name) . '-blocks" class="nav-tab">' . esc_html(ucfirst($block_name)) . ' ' . esc_html__('Blocks', 'blocks-scanner') . '</a>';
+			$block_name_show = str_replace('-', ' ', $block_name);
+			$block_name_show = ucwords(strtolower($block_name_show));
+            echo '<a href="#' . esc_attr($block_name) . '-blocks" class="nav-tab">' . esc_html( $block_name_show ) . ' ' . esc_html__('Blocks', 'blocks-scanner') . '</a>';
             $processed_categories[] = $block_name;
         }
     }
@@ -84,7 +91,11 @@ function blocks_scanner_table($blocks, $related_posts, $category) {
         echo '<ul class="block-filter">';
 	foreach ($blocks as $block => $count) {
         $block_category = substr($block, 0, strpos($block, '/'));
-        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+		$block_parts = explode('-', str_replace('_', '-', $block_category));
+		$block_name = reset($block_parts);
+    	if ($block_name === "wp") {
+			$block_name = $block_name . "-" . $block_parts[1];
+		}
         if ($block_name === $category) {
             echo '<li>';
             echo '<input type="checkbox" id="block-' . esc_attr($block) . '" class="block-checkbox" value="' . esc_attr($block) . '">';
@@ -114,7 +125,11 @@ function blocks_scanner_table($blocks, $related_posts, $category) {
 
     foreach ($blocks as $block => $count) {
         $block_category = substr($block, 0, strpos($block, '/'));
-        $block_name = reset(explode('-', str_replace('_', '-', $block_category)));
+		$block_parts = explode('-', str_replace('_', '-', $block_category));
+		$block_name = reset($block_parts);
+    	if ($block_name === "wp") {
+			$block_name = $block_name . "-" . $block_parts[1];
+		}
         if ($block_name === $category) {
             $posts = isset($related_posts[$block]) ? $related_posts[$block] : array();
             if (!empty($posts)) {

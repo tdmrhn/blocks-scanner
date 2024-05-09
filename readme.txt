@@ -4,7 +4,7 @@ Donate link: https://dmrhn.com/
 Tags: gutenberg, blocks, editor, scan, find
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 0.9
+Stable tag: 0.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,11 @@ Blocks Scanner is a WordPress plugin that allows you to easily scan and list the
 * Once activated, navigate to Tools > Blocks Scanner in your WordPress admin panel.
 * The plugin will automatically scan all posts, pages, and custom post types.
 * You can then view the list of posts that utilize blocks on your site and take appropriate actions quickly.
+
+
+[youtube https://www.youtube.com/watch?v=3uBbNTONkXU]
+
+
 
 == Support ==
 
@@ -66,6 +71,10 @@ Yes, Blocks Scanner is compatible with multisite installations of WordPress. You
 3. Easy & Live Search Filter.
 
 == Changelog ==
+= 0.9.1 =
+* Fix: If the first word of the blocks set is WP, add the second word
+* Fix: Separated variables
+
 = 0.9 =
 * Improvement: Dynamically generate tabs and block lists based on Blocks set/plugin
 
