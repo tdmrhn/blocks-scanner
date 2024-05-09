@@ -9,10 +9,8 @@ Blocks Scanner is a WordPress plugin that allows you to easily scan and list the
 - Streamline your editing workflow by easily identifying and managing blocks.
 
 ## Installation
-1. Download the plugin ZIP file from the [Blocks Scanner GitHub repository](https://github.com/tdmrhn/blocks-scanner).
-2. In your WordPress admin panel, navigate to Plugins -> Add New.
-3. Click the "Upload Plugin" button, choose the ZIP file you downloaded, and click "Install Now."
-4. After installation, activate the plugin.
+1. Install [Blocks Scanner](https://wordpress.org/plugins/blocks-scanner/) plugin from WP repository.
+2. Activate the plugin.
 
 ## Usage
 1. Once activated, navigate to Tools > Blocks Scanner in your WordPress admin panel.
@@ -26,6 +24,10 @@ Blocks Scanner is developed by [dmrhn](https://dmrhn.com).
 For support, bug reports, or feature requests, please visit the [GitHub repository](https://github.com/tdmrhn/blocks-scanner) and create an issue.
 
 ## Version
+
+= 0.9 =
+* Improvement: Dynamically generate tabs and block lists based on Blocks set/plugin
+  
 = 0.8 =
 * Improvement: Improved unique slug nonce check
 * Improvement: Improved unique function names
