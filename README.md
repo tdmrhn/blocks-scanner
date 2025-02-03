@@ -14,7 +14,7 @@ Blocks Scanner is a WordPress plugin that allows you to easily scan and list the
 
 ## Usage
 1. Once activated, navigate to Tools > Blocks Scanner in your WordPress admin panel.
-2. The plugin will automatically scan all posts, pages, and custom post types.
+2. The plugin will automatically scan all posts, pages, and custom post types and patterns.
 3. You can then view the list of posts that utilize blocks on your site and take appropriate actions quickly.
 
 ## Author
@@ -25,6 +25,12 @@ For support, bug reports, or feature requests, please visit the [GitHub reposito
 
 ## Version
 
+= 1.0 =
+* New: Added more filters to better management
+* New: Filters are updated via the posts/pages current table
+* New: JS has been rewritten from scratch, now even faster
+* Improvement: UI changes for better management
+  
 = 0.9.1 =
 * Fix: If the first word of the blocks set is WP, add the second word
 * Fix: Separated variables
